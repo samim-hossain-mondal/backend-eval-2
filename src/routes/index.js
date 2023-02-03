@@ -1,11 +1,8 @@
-const express = require('express');
-const router = express.Router();
-const controllers = require('../controllers/index');
+const router = require('express').Router();
+const controller = require('../controllers/index');
 
-router.route('/:id')
-  .get(controllers.getCompanyById);
-
-router.route('/filter-by-sector')
-  .get(controllers.getCompaniesBySector);
+router.post('/save', controller.getData);
+router.get('/companies', controller.getCompany);
+router.put('/update', controller.updateCeo);
 
 module.exports = router;

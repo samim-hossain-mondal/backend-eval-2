@@ -1,40 +1,26 @@
 const services = require('../services/index');
-const HttpErrors = require('../utils/customError');
 
-const getCompanyById = async (req, res) => {
-  try {
-    const { id } = req.params;
-    console.log(id);
-    const iD = services.companyById(id);
-    await fetch(`http://54.167.46.10/company/${iD}`)
-      .then(res => res.json())
-      .then(data => {
-        return res.status(200).json({ data });
-      });
-  }
-  catch (error) {
-    if (error instanceof HttpErrors) {
-      return res.status(error.statusCode).json({ message: error.message });
-    }
-  }
+const getData = async (req, res) => {
+  const url = req.body.urlLink;
+  const result = await services.dataDetails(url);
+  const filterResult = [];
+  result.map((item) => (filterResult.push({ id: item.id, name: item.name, score: item.score })));
+  res.status(200).json(filterResult);
 };
 
-const getCompaniesBySector = async (req, res) => {
-  try {
-    const { company_sector } = req.query;
-    console.log(company_sector);
-    const sector = services.companyBySector(company_sector);
-    await fetch(`http://54.167.46.10/sector?name=${sector}`)
-      .then(res => res.json())
-      .then(data => {
-        return res.status(200).json({ data });
-      });
-  }
-  catch (error) {
-    if (error instanceof HttpErrors) {
-      return res.status(error.statusCode).json({ message: error.message });
-    }
-  }
+const getCompany = async (req, res) => {
+  const sector = req.query.sector;
+  const result = await services.companyData(sector);
+  const filterResult = [];
+  result.map((item) => (filterResult.push({ id: item.id, name: item.name, ceo: item.ceo, score: item.score })));
+  res.status(200).json(filterResult);
 };
 
-module.exports = { getCompanyById, getCompaniesBySector };
+const updateCeo = async (req, res) => {
+  const ceo = req.body.ceo;
+  const id = req.body.id;
+  const result = await services.changeCeo(ceo, id);
+  res.status(200).json(result);
+};
+
+module.exports = { getData, getCompany, updateCeo };
