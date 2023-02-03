@@ -4,7 +4,7 @@ const os = require('os');
 const multer = require('multer');
 const fs = require('fs');
 const upload = multer({ dest: os.tmpdir() });
-//const router = require('./src/routes/index');
+const router = require('./src/routes/index');
 const app = express();
 const port = 3000;
 
@@ -21,6 +21,6 @@ app.post('/api/save', upload.single('file'), (req, res) => {
   });
 });
 
-//app.use('/api/save', router);
+app.use('/api/save', router);
 
 app.listen(port, () => console.log(`App listening on port ${port}!`));

@@ -1,6 +1,11 @@
 const express = require('express');
 const router = express.Router();
+const controllers = require('../controllers/index');
 
-// router.get('/',);
+router.route('/:id')
+  .get(controllers.getCompanyById);
 
-// module.exports = { router };
+router.route('/filter-by-sector')
+  .get(controllers.getCompaniesBySector);
+
+module.exports = router;
