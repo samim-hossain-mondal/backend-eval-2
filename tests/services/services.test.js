@@ -1,5 +1,5 @@
 const companydb = require('../../database/models/companydatabase');
-const services = require('../services/index');
+const services = require('../../src/services/index');
 
 describe('test services', () => {
   describe('test companyById', () => {
