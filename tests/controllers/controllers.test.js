@@ -1,5 +1,5 @@
 const services = require('../services/index');
-const controllers = require('../controllers/index');
+const controllers = require('../../src/controllers/index');
 
 describe('Test Controllers', () => {
   describe('test getCompanyById', () => {
