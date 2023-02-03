@@ -1,8 +1,8 @@
-const companyDb = require('../../database/models/companydatabase');
+const { companyDatabase } = require('../../database/models');
 const HttpErrors = require('../utils/customError');
 
 const companyById = async (id) => {
-  const companyId = await companyDb.findOne({ where: { company_id: id } });
+  const companyId = await companyDatabase.findOne({ where: { company_id: id } });
   if (companyId === undefined) {
     throw new HttpErrors(404, 'Company not found');
   }
@@ -10,7 +10,7 @@ const companyById = async (id) => {
 };
 
 const companyBySector = async (sector) => {
-  const sectorData = await companyDb.findAll({ where: { company_sector: sector } });
+  const sectorData = await companyDatabase.findAll({ where: { company_sector: sector } });
   if (sectorData === null) {
     throw new HttpErrors(404, 'Sector not found');
   }

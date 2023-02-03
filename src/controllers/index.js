@@ -21,8 +21,9 @@ const getCompanyById = async (req, res) => {
 
 const getCompaniesBySector = async (req, res) => {
   try {
-    const { sec } = req.query;
-    const sector = services.companyBySector(sec);
+    const { company_sector } = req.query;
+    console.log(company_sector);
+    const sector = services.companyBySector(company_sector);
     await fetch(`http://54.167.46.10/sector?name=${sector}`)
       .then(res => res.json())
       .then(data => {
