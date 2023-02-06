@@ -1,113 +1,103 @@
-const services = require('../../services/index');
-const controllers = require('../../controllers/index');
+const controllers = require('../../src/controllers/index');
+const services = require('../../src/services/index');
+const httpError = require('../../src/utils/httpError');
 
-describe('Test controllers', () => {
-  describe('Test getData', () => {
-    it('should return an array of objects', async () => {
-      jest.spyOn(services, 'dataDetails').mockResolvedValue([{ id: 1, name: 'Apple Inc.', score: '5' }]);
-      const req = {
-        body: {
-          urlLink: 'https://www.fool.com/investing/2020/08/04/3-stocks-to-buy-in-a-post-coronavirus-world.aspx'
-        }
+describe('Controllers', () => {
+  describe('addCompany', () => {
+    it('should save the data to the database when the input url is correct', async () => {
+      jest.spyOn(services, 'readCSV').mockResolvedValue([{}]);
+      jest.spyOn(services, 'fetchCompanyData').mockResolvedValue([{}]);
+      jest.spyOn(services, 'saveDataToDatabase').mockResolvedValue([{}]);
+      jest.spyOn(services, 'getCompanyWithScore').mockResolvedValue([{}]);
+      const mockReq = {
+        body: { urlLink: 'https://store-0001.s3.amazonaws.com/input.csv' }
       };
-      const res = {
+      const mockRes = {
         status: jest.fn().mockReturnThis(),
         json: jest.fn()
       };
-      await controllers.getData(req, res);
-      expect(res.status).toBeCalledWith(200);
-      expect(res.json).toBeCalledWith([
-        { id: 1, name: 'Apple Inc.', score: '5' }
-      ]);
+      await controllers.addCompany(mockReq, mockRes);
+      expect(mockRes.status).toBeCalledWith(201);
+      expect(mockRes.json).toBeCalledWith({ message: 'Succesfully uploaded data to the database', data: [{}] });
     });
-
-    it('should return an error', async () => {
-      jest.spyOn(services, 'dataDetails').mockRejectedValue(new Error('Error'));
-      const req = {
-        body: {
-          urlLink: 'https://www.fool.com/investing/2020/08/04/3-stocks-to-buy-in-a-post-coronavirus-world.aspx'
-        }
+    it('should throw internal server error if there is a db error', async () => {
+      jest.spyOn(services, 'readCSV').mockResolvedValue([{}]);
+      jest.spyOn(services, 'fetchCompanyData').mockResolvedValue([{}]);
+      jest.spyOn(services, 'saveDataToDatabase').mockResolvedValue([{}]);
+      jest.spyOn(services, 'getCompanyWithScore').mockRejectedValue(new Error('DB Error'));
+      const mockReq = {
+        body: { urlLink: 'https://store-0001.s3.amazonaws.com/input.csv' }
       };
-      const res = {
+      const mockRes = {
         status: jest.fn().mockReturnThis(),
         json: jest.fn()
       };
-      await controllers.getData(req, res);
-      expect(res.status).toBeCalledWith(500);
-      expect(res.json).toBeCalledWith({ error: 'Error' });
-    }
-    );
+      await controllers.addCompany(mockReq, mockRes);
+      expect(mockRes.status).toBeCalledWith(500);
+      expect(mockRes.json).toBeCalledWith({ msg: 'Something went wrong, try again later..' });
+    });
   });
-  describe('Test getCompany', () => {
-    it('should return an array of objects', async () => {
-      jest.spyOn(services, 'companyData').mockResolvedValue([{ id: 1, name: 'Apple Inc.', ceo: 'Tim Cook', score: '5' }]);
-      const req = {
-        query: {
-          sector: 'Technology'
-        }
+
+  describe('updateCompanyDetails', () => {
+    it('should upadte the data to the database when the input is correct', async () => {
+      jest.spyOn(services, 'updateCompanyDetail').mockResolvedValue([1]);
+      const mockReq = {
+        body: { ceo: 'kamal' },
+        params: { id: 'hsdkj5426' }
       };
-      const res = {
+      const mockRes = {
         status: jest.fn().mockReturnThis(),
         json: jest.fn()
       };
-      await controllers.getCompany(req, res);
-      expect(res.status).toBeCalledWith(200);
-      expect(res.json).toBeCalledWith([
-        { id: 1, name: 'Apple Inc.', ceo: 'Tim Cook', score: '5' }
-      ]);
+      await controllers.updateCompanyDetails(mockReq, mockRes);
+      expect(mockRes.status).toBeCalledWith(201);
+      expect(mockRes.json).toBeCalledWith({ message: 'Succesfully updated data to the database', data: [1] });
     });
 
-    it('should return an error', async () => {
-      jest.spyOn(services, 'companyData').mockRejectedValue(new Error('Error'));
-      const req = {
-        query: {
-          sector: 'Technology'
-        }
-      };
-      const res = {
-        status: jest.fn().mockReturnThis(),
-        json: jest.fn()
-      };
-      await controllers.getCompany(req, res);
-      expect(res.status).toBeCalledWith(500);
-      expect(res.json).toBeCalledWith({ error: 'Error' });
-    }
-    );
   });
-  describe('Test updateCeo', () => {
-    it('should return an object', async () => {
-      jest.spyOn(services, 'changeCeo').mockResolvedValue({ id: 1, name: 'Apple Inc.', ceo: 'Tim Cook', score: '5' });
-      const req = {
-        body: {
-          ceo: 'Tim Cook',
-          id: 1
+  describe('getTopScoredCompanyBySector', () => {
+    it('should upadte the data to the database when the input is correct', async () => {
+      const mockResult = [
+        {
+          'id': '46e1d061-e39d-4d5c-8e0e-3fa5d45d9efc',
+          'name': 'Apple',
+          'ceo': 'Kate Okuneva',
+          'score': 29.987724999999998,
+          'ranking': '1'
+        },
+        {
+          'id': 'b6472c52-732a-4fd2-a463-ae604c0a2c79',
+          'name': 'Microsoft',
+          'ceo': 'Olga Block',
+          'score': 21.3221,
+          'ranking': '2'
         }
+      ];
+      jest.spyOn(services, 'getTopScoredCompany').mockResolvedValue(mockResult);
+      const mockReq = {
+        query: { sector: 'Software' }
       };
-      const res = {
+      const mockRes = {
         status: jest.fn().mockReturnThis(),
         json: jest.fn()
       };
-      await controllers.updateCeo(req, res);
-      expect(res.status).toBeCalledWith(200);
-      expect(res.json).toBeCalledWith({ id: 1, name: 'Apple Inc.', ceo: 'Tim Cook', score: '5' });
+      await controllers.getTopScoredCompanyBySector(mockReq, mockRes);
+      expect(mockRes.status).toBeCalledWith(200);
+      expect(mockRes.json).toBeCalledWith({ data: mockResult });
     });
 
-    it('should return an error', async () => {
-      jest.spyOn(services, 'changeCeo').mockRejectedValue(new Error('Error'));
-      const req = {
-        body: {
-          ceo: 'Tim Cook',
-          id: 1
-        }
+    it('should return empty array when there is no company with the given sector', async () => {
+      jest.spyOn(services, 'getTopScoredCompany').mockResolvedValue([]);
+      const mockReq = {
+        query: { sector: 'something' }
       };
-      const res = {
+      const mockRes = {
         status: jest.fn().mockReturnThis(),
         json: jest.fn()
       };
-      await controllers.updateCeo(req, res);
-      expect(res.status).toBeCalledWith(500);
-      expect(res.json).toBeCalledWith({ error: 'Error' });
-    }
-    );
+      await controllers.getTopScoredCompanyBySector(mockReq, mockRes);
+      expect(mockRes.status).toBeCalledWith(200);
+      expect(mockRes.json).toBeCalledWith({ data: [] });
+    });
   });
 });
