@@ -14,11 +14,16 @@ module.exports = (sequelize, DataTypes) => {
     }
   }
   company.init({
-    company_id: DataTypes.STRING,
+    id: {
+      type: DataTypes.STRING,
+      primaryKey: true,
+      allowNull: false
+    },
     name: DataTypes.STRING,
     ceo: DataTypes.STRING,
-    sector: DataTypes.STRING,
-    score: DataTypes.STRING
+    tags: DataTypes.STRING,
+    score: DataTypes.FLOAT,
+    sector: DataTypes.STRING
   }, {
     sequelize,
     modelName: 'company',
