@@ -1,26 +1,49 @@
-const services = require('../services/index');
+const services = require('../services/company');
+const HttpError = require('../utils/httpError');
 
-const getData = async (req, res) => {
-  const url = req.body.urlLink;
-  const result = await services.dataDetails(url);
-  const filterResult = [];
-  result.map((item) => (filterResult.push({ id: item.id, name: item.name, score: item.score })));
-  res.status(200).json(filterResult);
+const addCompany = async (req, res) => {
+  try {
+    const { urlLink } = req.body;
+    const jsonData = await services.readCSV(urlLink);
+    const companyData = await services.fetchCompanyData(jsonData);
+    await services.saveDataToDatabase(companyData);
+    const data = await services.getCompanyWithScore();
+    res.status(201).json({ message: 'Succesfully uploaded data to the database', data: data });
+  } catch (error) {
+    res.status(500).json({ msg: 'Something went wrong, try again later..' });
+  }
 };
 
-const getCompany = async (req, res) => {
-  const sector = req.query.sector;
-  const result = await services.companyData(sector);
-  const filterResult = [];
-  result.map((item) => (filterResult.push({ id: item.id, name: item.name, ceo: item.ceo, score: item.score })));
-  res.status(200).json(filterResult);
+//2. Get API
+const getTopScoredCompanyBySector = async (req, res) => {
+  try {
+    const { query } = req;
+    const data = await services.getTopScoredCompany(query);
+    res.status(200).json({ data: data });
+  } catch (error) {
+    res.status(500).json({ msg: 'Something went wrong, try again later..' });
+  }
+
+
 };
 
-const updateCeo = async (req, res) => {
-  const ceo = req.body.ceo;
-  const id = req.body.id;
-  const result = await services.changeCeo(ceo, id);
-  res.status(200).json(result);
+
+
+
+
+//3. Update API
+const updateCompanyDetails = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const companyData = await services.updateCompanyDetail(req.body, id);
+    res.status(201).json({ message: 'Succesfully updated data to the database', data: companyData });
+  } catch (error) {
+    if (error instanceof HttpError) {
+      res.status(error.code).json({ msg: error.message });
+    } else {
+      res.status(500).json({ msg: 'Something went wrong, try again later..' });
+    }
+  }
 };
 
-module.exports = { getData, getCompany, updateCeo };
+module.exports = { addCompany, updateCompanyDetails, getTopScoredCompanyBySector };
