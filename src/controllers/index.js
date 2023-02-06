@@ -1,4 +1,4 @@
-const services = require('../services/company');
+const services = require('../services/index');
 const HttpError = require('../utils/httpError');
 
 const addCompany = async (req, res) => {
@@ -14,7 +14,6 @@ const addCompany = async (req, res) => {
   }
 };
 
-//2. Get API
 const getTopScoredCompanyBySector = async (req, res) => {
   try {
     const { query } = req;
@@ -27,11 +26,6 @@ const getTopScoredCompanyBySector = async (req, res) => {
 
 };
 
-
-
-
-
-//3. Update API
 const updateCompanyDetails = async (req, res) => {
   try {
     const { id } = req.params;
