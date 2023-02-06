@@ -15,7 +15,7 @@
 			"response": []
 		},
 		{
-			"name": "GET_byID",
+			"name": "GET_bySector",
 			"request": {
 				"method": "GET",
 				"header": []
@@ -23,7 +23,7 @@
 			"response": []
 		},
 		{
-			"name": "GET_bySector",
+			"name": "UPDATE-Ceo",
 			"request": {
 				"method": "GET",
 				"header": []
